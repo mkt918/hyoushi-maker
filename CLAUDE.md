@@ -10,6 +10,7 @@ GitHub: mkt918/hyoushi-maker（public、Pages で配信）。
 - 変更を確定する操作の末尾で `changed()` を呼ぶ（履歴・サムネイル・保存が連動）。ドラッグ中は `touch()` だけで軽く更新する
 - ポインターキャプチャ中は `e.target` が `#cv` になる。ダブルクリック等は `document.elementFromPoint` で対象を引く
 - `var state` は初期化中の `pageH()` が参照するため意図的に var
+- 印刷は基本グレースケール。新しいテンプレートはグレーだけで組み、白黒でも文字と背景の明暗差が十分あることを確かめる
 - テンプレートの文字要素には `role`（title / notes / sub / sub2）を付ける。切り替え時の引き継ぎはこれで対応づける
 - 印刷は `#print` に全ページを組み直して `window.print()`。`@page` サイズは `applyPaper()` が注入する
 

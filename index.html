@@ -20,7 +20,8 @@ button:disabled{opacity:.45;cursor:default}
 button.danger{color:#b91c1c}
 #app{display:grid;grid-template-rows:auto 1fr;height:100vh}
 #bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:7px 10px;background:var(--navy);color:#fff}
-#bar b{font-size:15px;margin-right:6px}
+#bar b{font-size:15px;margin-right:4px}
+#bar button{padding:5px 8px}
 #bar .sp{flex:1}
 #bar select{padding:4px 6px;border-radius:6px;border:1px solid var(--line)}
 #bar .sep{width:1px;height:22px;background:#ffffff55;margin:0 2px}
@@ -73,7 +74,8 @@ button.danger{color:#b91c1c}
 .mh b{font-size:16px}
 #carryRow{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:13px}
 #carryRow small{color:var(--sub)}
-#tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:12px}
+#tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px}
+body.mono #app .page,body.mono #modal .page{filter:grayscale(1)}
 .tc{cursor:pointer;border:2px solid var(--line);border-radius:10px;padding:10px;background:#fafafa}
 .tc:hover{border-color:var(--accent);background:#fff}
 .tp{margin:0 auto;box-shadow:0 1px 5px rgba(0,0,0,.25);background:#fff}
@@ -155,8 +157,9 @@ button.danger{color:#b91c1c}
         <button data-sh="line"><svg width="22" height="16"><rect x="1" y="7" width="20" height="2" fill="#1f2937"/></svg>横線</button>
       </div></span>
     <span class="sep"></span>
-    <button id="tplBtn">テンプレート</button>
+    <button id="tplBtn" title="この表紙のテンプレートを変える">テンプレ</button>
     <button id="guideBtn" title="印刷の安全範囲（各辺10mm）と中心線を表示">ガイド</button>
+    <button id="monoBtn" title="白黒で印刷したときの見え方で表示（画面だけ。印刷データは変わらない）">白黒表示</button>
     <span class="sp"></span>
     <button id="exportBtn" title="画像ごとファイルに保存。別のPCへ持ち運べる">書き出し</button>
     <button id="importBtn">読み込み</button>
@@ -199,8 +202,9 @@ const FONTS=[
   ["meiryo","メイリオ（PC内蔵）",'"Meiryo","Yu Gothic",sans-serif']
 ];
 const fontCss=id=>(FONTS.find(f=>f[0]===id)||FONTS[0])[2];
-const SW=["#000000","#374151","#14323f","#1d4ed8","#0f766e","#15803d","#ea580c","#f59e0b","#dc2626","#db2777","#7c3aed","#ffffff"];
-const LIGHT=["#fff7e6","#fef9c3","#fde68a","#fed7aa","#fce7f3","#ede9fe","#dbeafe","#dcfce7","#f3f4f6"];
+const GRAYS=["#000000","#1f1f1f","#404040","#595959","#808080","#a6a6a6","#cccccc","#e6e6e6","#f2f2f2","#ffffff"];   // 白黒印刷の基本色
+const SW=[...GRAYS,"#14323f","#1d4ed8","#0f766e","#15803d","#ea580c","#f59e0b","#dc2626","#db2777","#7c3aed"];
+const LIGHT=["#fff7e6","#fef9c3","#fde68a","#fed7aa","#fce7f3","#ede9fe","#dbeafe","#dcfce7"];
 const $=id=>document.getElementById(id);
 const uid=()=>Math.random().toString(36).slice(2,9);
 const clone=o=>JSON.parse(JSON.stringify(o));
@@ -268,11 +272,42 @@ const TEMPLATES=[
     mkRect({x:38,y:31,w:24,h:.25,bw:0,fill:"#1f2937"}),
     mkImage({x:10,y:35,w:42,h:27,cw:42}),
     mkText({role:"notes",text:NOTES,x:55,y:35,w:35,h:18.5,fs:1.85,lh:1.55,font:"mincho",border:true,bw:.2,bc:"#1f2937",pad:1.3}),
-    mkName({x:55,y:55.5,w:35,h:6.5,fs:2,font:"mincho",color:"#111827",bw:.2,bc:"#1f2937"})]};}}
+    mkName({x:55,y:55.5,w:35,h:6.5,fs:2,font:"mincho",color:"#111827",bw:.2,bc:"#1f2937"})]};}},
+  // ---- ここから白黒印刷向け（グレースケールだけで組む） ----
+  {name:"モノクロ帯",desc:"白黒向け。上下の黒帯に白抜きタイトル。コピーでもくっきり",make(){const H=pageH();return{bg:"#ffffff",els:[
+    mkRect({x:0,y:0,w:100,h:18,bw:0,fill:"#1f1f1f"}),
+    mkRect({x:0,y:H-4,w:100,h:4,bw:0,fill:"#1f1f1f"}),
+    mkText({role:"sub",text:"○学期期末考査",x:6,y:3.5,w:60,h:4,fs:2.2,ls:.15,bold:true,color:"#d9d9d9",font:"notosans"}),
+    mkText({role:"title",text:"○年生 ○○ テスト対策プリント",x:6,y:7.5,w:88,h:9,fs:4.6,bold:true,color:"#ffffff",va:"center",font:"notosans"}),
+    mkImage({x:6,y:23,w:46,h:40,cw:46,bw:.3,bc:"#1f1f1f"}),
+    mkText({role:"notes",text:NOTES,x:56,y:23,w:38,h:28,fs:1.95,lh:1.6,font:"notosans",color:"#1f1f1f",fill:"#f2f2f2",radius:1,pad:1.8}),
+    mkName({x:56,y:55,w:38,h:8,fs:2.1,font:"notosans",color:"#1f1f1f",bw:.3,bc:"#1f1f1f"})]};}},
+  {name:"タブ見出し",desc:"白黒向け。左上に科目名のタブ、太い下線で区切るノート風",make(){return{bg:"#ffffff",els:[
+    mkRect({x:6,y:6,w:22,h:6.5,bw:0,fill:"#1f1f1f",radius:1}),
+    mkText({role:"sub",text:"原価計算",x:6,y:6,w:22,h:6.5,fs:2.6,bold:true,color:"#ffffff",align:"center",va:"center",font:"notosans"}),
+    mkText({role:"title",text:"○年生 ○学期期末考査\nテスト対策プリント",x:6,y:14,w:88,h:15,fs:4.6,bold:true,lh:1.3,color:"#111111",font:"notosans"}),
+    mkRect({x:6,y:30,w:88,h:.6,bw:0,fill:"#1f1f1f"}),
+    mkImage({x:50,y:34,w:44,h:30,cw:44}),
+    mkText({role:"notes",text:NOTES,x:6,y:34,w:40,h:20,fs:1.95,lh:1.55,font:"notosans",color:"#1f1f1f",border:true,bw:.3,bc:"#595959",bs:"dashed",radius:1.5,pad:1.6}),
+    mkName({x:6,y:57,w:40,h:7,fs:2.1,font:"notosans",color:"#1f1f1f",bw:.3,bc:"#1f1f1f"})]};}},
+  {name:"マンガ大きめ",desc:"白黒向け。画像を大きく、タイトルは縦書き。マンガの1コマに",make(){const H=pageH();return{bg:"#ffffff",els:[
+    mkImage({x:4,y:4,w:66,h:H-8,cw:66,bw:.35,bc:"#111111"}),
+    mkText({role:"title",text:"○年生 ○○\n○学期期末考査",x:74,y:4,w:22,h:40,fs:4.4,bold:true,vertical:true,align:"center",va:"center",lh:1.3,color:"#111111",font:"notosans",border:true,bw:.5,bc:"#111111",pad:1.5}),
+    mkText({role:"notes",text:"〇つけをして\n提出すること\n提出日（　　　）",x:74,y:46,w:22,h:12,fs:1.9,lh:1.5,color:"#1f1f1f",font:"notosans",border:true,bw:.25,bc:"#111111",pad:1.2}),
+    mkName({x:74,y:60,w:22,h:H-64,fs:1.9,font:"notosans",color:"#111111",bw:.3,bc:"#111111"})]};}},
+  {name:"チェックリスト",desc:"白黒向け。やることチェック欄つき。提出前の確認に",make(){const H=pageH();return{bg:"#ffffff",els:[
+    mkRect({x:5,y:5,w:90,h:H-10,bw:.3,bc:"#111111",radius:2}),
+    mkText({role:"title",text:"○年生 ○○ ○学期期末考査\nテスト対策プリント",x:9,y:8.5,w:82,h:14,fs:4.4,bold:true,lh:1.3,color:"#111111",font:"notosans"}),
+    mkRect({x:9,y:24,w:82,h:.3,bw:0,fill:"#111111"}),
+    mkImage({x:9,y:28,w:42,h:33,cw:42}),
+    mkText({role:"sub",text:"やることチェック",x:55,y:28,w:36,h:4,fs:2.2,bold:true,color:"#111111",font:"notosans"}),
+    mkText({role:"check",text:"□ 全部の問題を解いた\n□ 〇つけをした\n□ まちがいを直した\n□ わからない所に印をつけた",x:55,y:32.5,w:36,h:18,fs:2.1,lh:1.75,color:"#1f1f1f",font:"notosans",fill:"#f2f2f2",radius:1,pad:1.4}),
+    mkText({role:"due",text:"提出日（　　　　　　）",x:55,y:51.5,w:36,h:4.5,fs:2.1,bold:true,color:"#111111",font:"notosans"}),
+    mkName({x:55,y:56.5,w:36,h:6.5,fs:2.1,font:"notosans",color:"#111111",bw:.3,bc:"#111111"})]};}}
 ];
 const coverFrom=t=>{const c=t.make();return {id:uid(),bg:c.bg,els:c.els};};
 
-var state={paper:"B4",cur:0,covers:[coverFrom(TEMPLATES[0])],assets:{}};   // var: 初期化中の pageH() が参照するため
+var state={paper:"B4",cur:0,covers:[coverFrom(TEMPLATES[0])],assets:{},mono:true};   // var: 初期化中の pageH() が参照するため
 const ui={sel:null,crop:false,guides:[],clip:null,safe:false};
 const cur=()=>state.covers[state.cur];
 const byId=id=>cur().els.find(e=>e.id===id);
@@ -578,7 +613,7 @@ function renderProps(){
     const c=cur();
     p.append(E("h3",{textContent:"表紙全体"}),
       E("div",{className:"btns"},btn("テンプレートを変える",()=>openTemplates("apply"),"wide")),
-      colorField("背景の色",()=>c.bg||"#ffffff",v=>c.bg=v,["#ffffff",...LIGHT]),
+      colorField("背景の色",()=>c.bg||"#ffffff",v=>c.bg=v,["#ffffff","#f2f2f2","#e6e6e6",...LIGHT]),
       selField("すべての文字のフォントを一括変更",[["","（選んでください）"],...fontOpts()],()=>"",v=>{if(!v)return;c.els.forEach(e=>{if("font" in e)e.font=v;});}),
       E("div",{className:"hint",innerHTML:
       "<b>基本の操作</b><br>・クリックで選択、ドラッグで移動<br>・角や辺のハンドルでサイズ変更<br>・文字はダブルクリックで直接編集<br>・画像はダブルクリックで<b>トリミング</b><br>　（中をドラッグ＝位置、ホイール＝拡大縮小）<br>・画像は枠へドロップ／<kbd>Ctrl</kbd>+<kbd>V</kbd>で貼り付け<br>・吹き出しはオレンジの丸でしっぽを動かす<br>・他の要素にピタッと揃う（<kbd>Alt</kbd>で解除）<br><br><b>マンガのセリフを変えるには</b><br>「＋ セリフ」（白塗り・縦書き）を元のセリフの上に重ね、ダブルクリックして書き換えます。<br><br><b>ショートカット</b><br><kbd>Del</kbd> 削除　<kbd>Ctrl+D</kbd> 複製<br><kbd>Ctrl+C</kbd>/<kbd>V</kbd> コピー・貼り付け<br><kbd>Ctrl+Z</kbd>/<kbd>Y</kbd> 戻す・進む<br><kbd>矢印</kbd> 少し動かす（<kbd>Shift</kbd>で大きく）<br><kbd>Enter</kbd> 文字を編集　<kbd>Tab</kbd> 次の要素<br><kbd>Esc</kbd> 選択解除<br><br>印刷時は用紙を表紙と同じサイズ、余白「なし」、倍率100%にしてください。"}));
@@ -705,6 +740,8 @@ $("shapeMenu").onclick=e=>{const b=e.target.closest("button");if(!b)return;toggl
 document.addEventListener("pointerdown",e=>{if(!e.target.closest(".dd"))toggleMenu("");});
 $("undo").onclick=undo;$("redo").onclick=redo;
 $("guideBtn").onclick=()=>{ui.safe=!ui.safe;$("guideBtn").classList.toggle("on",ui.safe);renderOverlay();};
+function applyMono(){document.body.classList.toggle("mono",!!state.mono);$("monoBtn").classList.toggle("on",!!state.mono);}
+$("monoBtn").onclick=()=>{state.mono=!state.mono;applyMono();save();};
 $("paper").onchange=()=>{state.paper=$("paper").value;applyPaper();fullRender();save();};
 function applyPaper(){const [w,hh]=PAPERS[state.paper];$("pageSize").textContent=`@page{size:${w}mm ${hh}mm;margin:0}:root{--pw:${w}mm;--ph:${hh}mm}`;$("paper").value=state.paper;}
 
@@ -716,7 +753,7 @@ function openTemplates(mode){
   $("carryRow").style.display=mode==="apply"?"":"none";
   const grid=$("tgrid");grid.replaceChildren();
   TEMPLATES.forEach((t,i)=>{
-    const card=div("tc"),pg=div("tp");pg.style.width="320px";pg.style.height=(320*pageH()/100)+"px";
+    const card=div("tc"),pg=div("tp");pg.style.width="260px";pg.style.height=(260*pageH()/100)+"px";
     pg.appendChild(buildPage(t.make()));
     card.append(pg,E("div",{className:"tn",textContent:`テンプレート${i+1}　${t.name}`}),E("div",{className:"td",textContent:t.desc}));
     card.onclick=()=>{$("modal").hidden=true;
@@ -919,9 +956,9 @@ window.addEventListener("resize",fit);
   if(s&&Array.isArray(s.covers)&&s.covers.length){
     const covers=s.covers.map(c=>({id:c.id||uid(),bg:c.bg||"#ffffff",els:(c.els||[]).filter(x=>MK[x.type]).map(norm)}));
     const used=usedAssets(covers),assets={};used.forEach(a=>{if(s.assets&&s.assets[a])assets[a]=s.assets[a];});   // 使われていない画像は捨てる
-    state={paper:PAPERS[s.paper]?s.paper:"B4",cur:Math.min(s.cur||0,covers.length-1),covers,assets};
+    state={paper:PAPERS[s.paper]?s.paper:"B4",cur:Math.min(s.cur||0,covers.length-1),covers,assets,mono:s.mono!==false};
   }
-  applyPaper();fullRender();
+  applyPaper();applyMono();fullRender();
   hist=[snap()];hi=0;updateUndoBtns();
 })();
 </script>
