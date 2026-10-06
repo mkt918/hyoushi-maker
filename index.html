@@ -6,7 +6,7 @@
 <title>表紙メーカー</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Klee+One:wght@400;600&family=M+PLUS+Rounded+1c:wght@400;700;800&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700&family=Shippori+Mincho:wght@400;700&family=Yusei+Magic&family=Zen+Maru+Gothic:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Klee+One:wght@400;600&family=M+PLUS+Rounded+1c:wght@400;700;800&family=Noto+Sans+JP:wght@400;700;900&family=Noto+Serif+JP:wght@400;700&family=Shippori+Mincho:wght@400;700&family=Yusei+Magic&family=Zen+Maru+Gothic:wght@400;700&family=Hachi+Maru+Pop&family=Mochiy+Pop+One&family=Potta+One&family=Reggae+One&family=RocknRoll+One&family=Rampart+One&family=Yomogi&family=Zen+Kurenaido&display=swap">
 <style>
 :root{--bg:#e5e7eb;--panel:#fff;--ink:#1f2937;--sub:#6b7280;--line:#d1d5db;--accent:#ea580c;--navy:#14323f}
 *{box-sizing:border-box}
@@ -112,6 +112,8 @@ body.mono #app .page,body.mono #modal .page{filter:grayscale(1)}
 .hd{position:absolute;width:10px;height:10px;background:#fff;border:1.5px solid var(--accent);transform:translate(-50%,-50%);pointer-events:auto;border-radius:2px}
 .sel.crop .hd{background:#111;border-color:#111;border-radius:0}
 .hd.tail{width:14px;height:14px;border-radius:50%;background:#f59e0b;border:2px solid #fff;box-shadow:0 0 0 1px #b45309;cursor:crosshair}
+.hd.warp{width:16px;height:16px;border-radius:50%;background:#ea580c;border:2px solid #fff;box-shadow:0 0 0 1px #7c2d12;cursor:move}
+#cv.leveling,#cv.leveling *{cursor:crosshair!important}
 .ghost{position:absolute;opacity:.3}
 .ghost img{width:100%;height:100%;display:block}
 .guide{position:absolute;background:#e11d8b}
@@ -199,8 +201,17 @@ const FONTS=[
   ["mincho","しっぽり明朝（上品）",'"Shippori Mincho","Noto Serif JP","BIZ UDPMincho","Yu Mincho",serif'],
   ["notoserif","Noto 明朝（読みやすい）",'"Noto Serif JP","BIZ UDPMincho","Yu Mincho",serif'],
   ["hand","手書き風",'"Yusei Magic","Klee One",cursive'],
-  ["meiryo","メイリオ（PC内蔵）",'"Meiryo","Yu Gothic",sans-serif']
+  ["meiryo","メイリオ（PC内蔵）",'"Meiryo","Yu Gothic",sans-serif'],
+  ["hachi","ハチマルポップ（かわいい）",'"Hachi Maru Pop","Zen Maru Gothic",cursive'],
+  ["mochiy","モッチー（ふとポップ）",'"Mochiy Pop One","Zen Maru Gothic",sans-serif'],
+  ["potta","ポッタ（筆ポップ）",'"Potta One","Dela Gothic One",cursive'],
+  ["reggae","レゲエ（さけび・強調）",'"Reggae One","Dela Gothic One",sans-serif'],
+  ["rocknroll","ロックンロール（カクカク）",'"RocknRoll One","Zen Maru Gothic",sans-serif'],
+  ["yomogi","よもぎ（手書き）",'"Yomogi","Yusei Magic",cursive'],
+  ["rampart","ランパート（ふち取り風）",'"Rampart One","Dela Gothic One",sans-serif'],
+  ["kurenaido","呉竹（ペン字）",'"Zen Kurenaido","Yusei Magic",cursive']
 ];
+const MANGA_FONTS=new Set(["pop","hand","hachi","mochiy","potta","reggae","rocknroll","yomogi","rampart","kurenaido"]);
 const fontCss=id=>(FONTS.find(f=>f[0]===id)||FONTS[0])[2];
 const GRAYS=["#000000","#1f1f1f","#404040","#595959","#808080","#a6a6a6","#cccccc","#e6e6e6","#f2f2f2","#ffffff"];   // 白黒印刷の基本色
 const SW=[...GRAYS,"#14323f","#1d4ed8","#0f766e","#15803d","#ea580c","#f59e0b","#dc2626","#db2777","#7c3aed"];
@@ -218,9 +229,9 @@ const mmPer=()=>PAPERS[curPaper()][0]/100;                               // 1cqw
 const NOTES="しっかりと勉強をしてきてください！\n〇もつけて提出です\n\n提出日（　考査日、○○の机に　）\nレポート提出・小テスト（○/○頃）";
 function mkText(o={}){return Object.assign({id:uid(),type:"text",role:"",text:"テキスト",x:10,y:10,w:40,h:8,
   font:"gothic",fs:3,bold:false,vertical:false,align:"start",va:"start",lh:1.4,ls:0,color:"#000000",
-  fill:"",border:false,bw:.25,bc:"#000000",bs:"solid",radius:0,shadow:false,pad:0},o);}
+  fill:"#ffffff",border:false,bw:.25,bc:"#000000",bs:"solid",radius:0,shadow:false,pad:.8},o);}
 function mkImage(o={}){const e=Object.assign({id:uid(),type:"image",a:"",ar:1,x:8,y:25.5,w:40,h:37.6,cx:0,cy:0,cw:40,lock:true,
-  bw:0,bc:"#000000",bs:"solid",radius:0,shadow:false},o);if(e.ch==null)e.ch=e.cw/e.ar;return e;}
+  bw:0,bc:"#000000",bs:"solid",radius:0,shadow:false,ar0:null,fx:null},o);if(e.ch==null)e.ch=e.cw/e.ar;if(e.ar0==null)e.ar0=e.ar;return e;}
 function mkName(o={}){return Object.assign({id:uid(),type:"name",x:50,y:56.7,w:42,h:6.4,l1:"番号",l2:"名前",
   font:"gothic",fs:2.3,color:"#000000",fill:"",bw:.25,bc:"#000000",bs:"solid",radius:0,shadow:false},o);}
 function mkRect(o={}){return Object.assign({id:uid(),type:"rect",x:5.5,y:5.5,w:89,h:pageH()-11,
@@ -235,80 +246,81 @@ function norm(e){                                 // 旧バージョンの保存
   if(e.type==="text"&&e.border&&e.pad===undefined)lg.pad=1.4;
   if(e.align==="left")e.align="start";if(e.align==="right")e.align="end";
   const o=Object.assign(MK[e.type](),lg,e);
-  if(o.type==="image"&&o.ch==null)o.ch=o.cw/o.ar;
+  if(o.type==="image"){if(o.ch==null)o.ch=o.cw/o.ar;if(o.ar0==null)o.ar0=o.ar;}
   return o;
 }
 
 /* ---------- テンプレート ---------- */
+const T=o=>mkText(Object.assign({fill:"",pad:0},o));   // テンプレート内の文字は背景透明が基本
 const TEMPLATES=[
   {name:"スタンダード",desc:"太い外枠＋左に画像。いちばん見やすい基本形",make(){return{bg:"#ffffff",els:[
     mkRect(),
-    mkText({role:"title",text:"○年生 ○○ ○学期期末考査\nテスト対策完璧最高プリント",x:8,y:7.5,w:84,h:16,fs:5.2,lh:1.28}),
+    T({role:"title",text:"○年生 ○○ ○学期期末考査\nテスト対策完璧最高プリント",x:8,y:7.5,w:84,h:16,fs:5.2,lh:1.28}),
     mkImage({x:8,y:25.5,w:40,h:37.6,cw:40}),
-    mkText({role:"notes",text:NOTES,x:50,y:34,w:42,h:20,fs:2.2,border:true,lh:1.55,pad:1.4}),
+    T({role:"notes",text:NOTES,x:50,y:34,w:42,h:20,fs:2.2,border:true,lh:1.55,pad:1.4}),
     mkName()]};}},
   {name:"サイドバー",desc:"左に紺の帯とタイトル。科目名がひと目で分かる",make(){const H=pageH();return{bg:"#ffffff",els:[
     mkRect({x:0,y:0,w:32,h:H,bw:0,fill:"#14323f"}),
     mkRect({x:32,y:0,w:1,h:H,bw:0,fill:"#f59e0b"}),
-    mkText({role:"sub",text:"PRINT",x:4,y:6,w:25,h:4,fs:2.2,ls:.3,color:"#f59e0b",bold:true,font:"notosans"}),
-    mkText({role:"title",text:"○年生\n○○\n○学期\n期末考査",x:4,y:12,w:25,h:36,fs:5.2,bold:true,color:"#ffffff",lh:1.3,font:"notosans"}),
-    mkText({role:"sub2",text:"テスト対策プリント",x:4,y:H-13,w:25,h:7,fs:2.5,color:"#ffffff",font:"notosans",va:"end",lh:1.4}),
+    T({role:"sub",text:"PRINT",x:4,y:6,w:25,h:4,fs:2.2,ls:.3,color:"#f59e0b",bold:true,font:"notosans"}),
+    T({role:"title",text:"○年生\n○○\n○学期\n期末考査",x:4,y:12,w:25,h:36,fs:5.2,bold:true,color:"#ffffff",lh:1.3,font:"notosans"}),
+    T({role:"sub2",text:"テスト対策プリント",x:4,y:H-13,w:25,h:7,fs:2.5,color:"#ffffff",font:"notosans",va:"end",lh:1.4}),
     mkImage({x:37,y:6,w:57,h:32,cw:57}),
     mkRect({x:37,y:42,w:.8,h:15.5,bw:0,fill:"#f59e0b"}),
-    mkText({role:"notes",text:NOTES,x:39.5,y:41.5,w:54.5,h:16.5,fs:2.2,lh:1.5,font:"notosans",color:"#1f2937"}),
+    T({role:"notes",text:NOTES,x:39.5,y:41.5,w:54.5,h:16.5,fs:2.2,lh:1.5,font:"notosans",color:"#1f2937"}),
     mkName({x:37,y:59.5,w:57,h:6.5,fs:2.2,font:"notosans",color:"#14323f",bw:.3,bc:"#14323f"})]};}},
   {name:"ポップ",desc:"オレンジの見出し帯と丸い飾り。明るく親しみやすい",make(){const H=pageH();return{bg:"#fff7e6",els:[
     mkRect({x:-7,y:-9,w:24,h:24,bw:0,fill:"#fde68a",radius:12}),
     mkRect({x:88,y:H-15,w:20,h:20,bw:0,fill:"#fed7aa",radius:10}),
     mkRect({x:4,y:4,w:92,h:18,bw:0,fill:"#ea580c",radius:2.5,shadow:true}),
-    mkText({role:"title",text:"○年生 ○○ ○学期期末考査\nテスト対策プリント",x:6,y:5,w:88,h:16,fs:4.6,color:"#ffffff",align:"center",va:"center",lh:1.3,font:"pop"}),
+    T({role:"title",text:"○年生 ○○ ○学期期末考査\nテスト対策プリント",x:6,y:5,w:88,h:16,fs:4.6,color:"#ffffff",align:"center",va:"center",lh:1.3,font:"pop"}),
     mkImage({x:5,y:26,w:47,h:38,cw:47,bw:.45,bc:"#1f2937",radius:1.8}),
-    mkText({role:"notes",text:NOTES,x:54.5,y:26,w:41,h:25,fs:2.1,lh:1.55,font:"maru",bold:true,color:"#1f2937",fill:"#ffffff",border:true,bw:.4,bc:"#ea580c",radius:2,pad:1.6}),
+    T({role:"notes",text:NOTES,x:54.5,y:26,w:41,h:25,fs:2.1,lh:1.55,font:"maru",bold:true,color:"#1f2937",fill:"#ffffff",border:true,bw:.4,bc:"#ea580c",radius:2,pad:1.6}),
     mkName({x:54.5,y:54,w:41,h:10,fs:2.3,font:"maru",color:"#1f2937",fill:"#ffffff",bw:.4,bc:"#ea580c",radius:2})]};}},
   {name:"エレガント",desc:"二重線の外枠と明朝体。落ち着いた上品な印象",make(){const H=pageH();return{bg:"#ffffff",els:[
     mkRect({x:4.5,y:4.5,w:91,h:H-9,bw:.9,bc:"#1f2937",bs:"double"}),
-    mkText({role:"sub",text:"— ○学期期末考査 —",x:10,y:9,w:80,h:4.5,fs:2.3,align:"center",ls:.25,font:"mincho",color:"#4b5563"}),
-    mkText({role:"title",text:"○年生 ○○\nテスト対策プリント",x:10,y:14,w:80,h:15,fs:5.4,align:"center",va:"center",lh:1.3,font:"mincho",bold:true,color:"#111827"}),
+    T({role:"sub",text:"— ○学期期末考査 —",x:10,y:9,w:80,h:4.5,fs:2.3,align:"center",ls:.25,font:"mincho",color:"#4b5563"}),
+    T({role:"title",text:"○年生 ○○\nテスト対策プリント",x:10,y:14,w:80,h:15,fs:5.4,align:"center",va:"center",lh:1.3,font:"mincho",bold:true,color:"#111827"}),
     mkRect({x:38,y:31,w:24,h:.25,bw:0,fill:"#1f2937"}),
     mkImage({x:10,y:35,w:42,h:27,cw:42}),
-    mkText({role:"notes",text:NOTES,x:55,y:35,w:35,h:18.5,fs:1.85,lh:1.55,font:"mincho",border:true,bw:.2,bc:"#1f2937",pad:1.3}),
+    T({role:"notes",text:NOTES,x:55,y:35,w:35,h:18.5,fs:1.85,lh:1.55,font:"mincho",border:true,bw:.2,bc:"#1f2937",pad:1.3}),
     mkName({x:55,y:55.5,w:35,h:6.5,fs:2,font:"mincho",color:"#111827",bw:.2,bc:"#1f2937"})]};}},
   // ---- ここから白黒印刷向け（グレースケールだけで組む） ----
   {name:"モノクロ帯",desc:"白黒向け。上下の黒帯に白抜きタイトル。コピーでもくっきり",make(){const H=pageH();return{bg:"#ffffff",els:[
     mkRect({x:0,y:0,w:100,h:18,bw:0,fill:"#1f1f1f"}),
     mkRect({x:0,y:H-4,w:100,h:4,bw:0,fill:"#1f1f1f"}),
-    mkText({role:"sub",text:"○学期期末考査",x:6,y:3.5,w:60,h:4,fs:2.2,ls:.15,bold:true,color:"#d9d9d9",font:"notosans"}),
-    mkText({role:"title",text:"○年生 ○○ テスト対策プリント",x:6,y:7.5,w:88,h:9,fs:4.6,bold:true,color:"#ffffff",va:"center",font:"notosans"}),
+    T({role:"sub",text:"○学期期末考査",x:6,y:3.5,w:60,h:4,fs:2.2,ls:.15,bold:true,color:"#d9d9d9",font:"notosans"}),
+    T({role:"title",text:"○年生 ○○ テスト対策プリント",x:6,y:7.5,w:88,h:9,fs:4.6,bold:true,color:"#ffffff",va:"center",font:"notosans"}),
     mkImage({x:6,y:23,w:46,h:40,cw:46,bw:.3,bc:"#1f1f1f"}),
-    mkText({role:"notes",text:NOTES,x:56,y:23,w:38,h:28,fs:1.95,lh:1.6,font:"notosans",color:"#1f1f1f",fill:"#f2f2f2",radius:1,pad:1.8}),
+    T({role:"notes",text:NOTES,x:56,y:23,w:38,h:28,fs:1.95,lh:1.6,font:"notosans",color:"#1f1f1f",fill:"#f2f2f2",radius:1,pad:1.8}),
     mkName({x:56,y:55,w:38,h:8,fs:2.1,font:"notosans",color:"#1f1f1f",bw:.3,bc:"#1f1f1f"})]};}},
   {name:"タブ見出し",desc:"白黒向け。左上に科目名のタブ、太い下線で区切るノート風",make(){return{bg:"#ffffff",els:[
     mkRect({x:6,y:6,w:22,h:6.5,bw:0,fill:"#1f1f1f",radius:1}),
-    mkText({role:"sub",text:"原価計算",x:6,y:6,w:22,h:6.5,fs:2.6,bold:true,color:"#ffffff",align:"center",va:"center",font:"notosans"}),
-    mkText({role:"title",text:"○年生 ○学期期末考査\nテスト対策プリント",x:6,y:14,w:88,h:15,fs:4.6,bold:true,lh:1.3,color:"#111111",font:"notosans"}),
+    T({role:"sub",text:"原価計算",x:6,y:6,w:22,h:6.5,fs:2.6,bold:true,color:"#ffffff",align:"center",va:"center",font:"notosans"}),
+    T({role:"title",text:"○年生 ○学期期末考査\nテスト対策プリント",x:6,y:14,w:88,h:15,fs:4.6,bold:true,lh:1.3,color:"#111111",font:"notosans"}),
     mkRect({x:6,y:30,w:88,h:.6,bw:0,fill:"#1f1f1f"}),
     mkImage({x:50,y:34,w:44,h:30,cw:44}),
-    mkText({role:"notes",text:NOTES,x:6,y:34,w:40,h:20,fs:1.95,lh:1.55,font:"notosans",color:"#1f1f1f",border:true,bw:.3,bc:"#595959",bs:"dashed",radius:1.5,pad:1.6}),
+    T({role:"notes",text:NOTES,x:6,y:34,w:40,h:20,fs:1.95,lh:1.55,font:"notosans",color:"#1f1f1f",border:true,bw:.3,bc:"#595959",bs:"dashed",radius:1.5,pad:1.6}),
     mkName({x:6,y:57,w:40,h:7,fs:2.1,font:"notosans",color:"#1f1f1f",bw:.3,bc:"#1f1f1f"})]};}},
   {name:"マンガ大きめ",desc:"白黒向け。画像を大きく、タイトルは縦書き。マンガの1コマに",make(){const H=pageH();return{bg:"#ffffff",els:[
     mkImage({x:4,y:4,w:66,h:H-8,cw:66,bw:.35,bc:"#111111"}),
-    mkText({role:"title",text:"○年生 ○○\n○学期期末考査",x:74,y:4,w:22,h:40,fs:4.4,bold:true,vertical:true,align:"center",va:"center",lh:1.3,color:"#111111",font:"notosans",border:true,bw:.5,bc:"#111111",pad:1.5}),
-    mkText({role:"notes",text:"〇つけをして\n提出すること\n提出日（　　　）",x:74,y:46,w:22,h:12,fs:1.9,lh:1.5,color:"#1f1f1f",font:"notosans",border:true,bw:.25,bc:"#111111",pad:1.2}),
+    T({role:"title",text:"○年生 ○○\n○学期期末考査",x:74,y:4,w:22,h:40,fs:4.4,bold:true,vertical:true,align:"center",va:"center",lh:1.3,color:"#111111",font:"notosans",border:true,bw:.5,bc:"#111111",pad:1.5}),
+    T({role:"notes",text:"〇つけをして\n提出すること\n提出日（　　　）",x:74,y:46,w:22,h:12,fs:1.9,lh:1.5,color:"#1f1f1f",font:"notosans",border:true,bw:.25,bc:"#111111",pad:1.2}),
     mkName({x:74,y:60,w:22,h:H-64,fs:1.9,font:"notosans",color:"#111111",bw:.3,bc:"#111111"})]};}},
   {name:"チェックリスト",desc:"白黒向け。やることチェック欄つき。提出前の確認に",make(){const H=pageH();return{bg:"#ffffff",els:[
     mkRect({x:5,y:5,w:90,h:H-10,bw:.3,bc:"#111111",radius:2}),
-    mkText({role:"title",text:"○年生 ○○ ○学期期末考査\nテスト対策プリント",x:9,y:8.5,w:82,h:14,fs:4.4,bold:true,lh:1.3,color:"#111111",font:"notosans"}),
+    T({role:"title",text:"○年生 ○○ ○学期期末考査\nテスト対策プリント",x:9,y:8.5,w:82,h:14,fs:4.4,bold:true,lh:1.3,color:"#111111",font:"notosans"}),
     mkRect({x:9,y:24,w:82,h:.3,bw:0,fill:"#111111"}),
     mkImage({x:9,y:28,w:42,h:33,cw:42}),
-    mkText({role:"sub",text:"やることチェック",x:55,y:28,w:36,h:4,fs:2.2,bold:true,color:"#111111",font:"notosans"}),
-    mkText({role:"check",text:"□ 全部の問題を解いた\n□ 〇つけをした\n□ まちがいを直した\n□ わからない所に印をつけた",x:55,y:32.5,w:36,h:18,fs:2.1,lh:1.75,color:"#1f1f1f",font:"notosans",fill:"#f2f2f2",radius:1,pad:1.4}),
-    mkText({role:"due",text:"提出日（　　　　　　）",x:55,y:51.5,w:36,h:4.5,fs:2.1,bold:true,color:"#111111",font:"notosans"}),
+    T({role:"sub",text:"やることチェック",x:55,y:28,w:36,h:4,fs:2.2,bold:true,color:"#111111",font:"notosans"}),
+    T({role:"check",text:"□ 全部の問題を解いた\n□ 〇つけをした\n□ まちがいを直した\n□ わからない所に印をつけた",x:55,y:32.5,w:36,h:18,fs:2.1,lh:1.75,color:"#1f1f1f",font:"notosans",fill:"#f2f2f2",radius:1,pad:1.4}),
+    T({role:"due",text:"提出日（　　　　　　）",x:55,y:51.5,w:36,h:4.5,fs:2.1,bold:true,color:"#111111",font:"notosans"}),
     mkName({x:55,y:56.5,w:36,h:6.5,fs:2.1,font:"notosans",color:"#111111",bw:.3,bc:"#111111"})]};}}
 ];
 const coverFrom=t=>{const c=t.make();return {id:uid(),bg:c.bg,els:c.els};};
 
 var state={paper:"B4",cur:0,covers:[coverFrom(TEMPLATES[0])],assets:{},mono:true};   // var: 初期化中の pageH() が参照するため
-const ui={sel:null,crop:false,guides:[],clip:null,safe:false};
+const ui={sel:null,crop:false,guides:[],clip:null,safe:false,warp:null,level:null};
 const cur=()=>state.covers[state.cur];
 const byId=id=>cur().els.find(e=>e.id===id);
 const selEl=()=>ui.sel?byId(ui.sel):null;
@@ -419,7 +431,7 @@ function mk(el){
     const t=div("tx");t.textContent=el.text;n.appendChild(t);textStyle(n,t,el);
     if(el.type==="text"){deco(n,el,el.border);n.style.padding=el.pad+"cqw";}
   }else if(el.type==="image"){
-    if(el.a&&state.assets[el.a]){const im=new Image();im.src=state.assets[el.a];im.draggable=false;n.appendChild(im);}
+    if(el.a&&state.assets[el.a]){const im=new Image();im.src=procSrc(el);im.draggable=false;n.appendChild(im);}
     else{const ph=div("ph");ph.textContent="画像をドロップ\nまたはダブルクリック";n.appendChild(ph);}
     if(el.radius)n.style.borderRadius=el.radius+"cqw";
     if(el.shadow)n.style.boxShadow=".7cqw .7cqw 0 rgba(0,0,0,.28)";
@@ -461,6 +473,7 @@ const HANDLES={nw:[0,0],n:[50,0],ne:[100,0],e:[100,50],se:[100,100],s:[50,100],s
 const CURSOR={nw:"nwse-resize",se:"nwse-resize",ne:"nesw-resize",sw:"nesw-resize",n:"ns-resize",s:"ns-resize",e:"ew-resize",w:"ew-resize"};
 function renderOverlay(){
   const ov=$("ov");ov.replaceChildren();const H=pageH();
+  $("cv").classList.toggle("leveling",!!ui.level);
   if(ui.safe){
     const m=10/mmPer(),r=div("safe");Object.assign(r.style,{left:m+"cqw",top:m+"cqw",width:(100-2*m)+"cqw",height:(H-2*m)+"cqw"});ov.appendChild(r);
     const v=div("cl");Object.assign(v.style,{left:"50cqw",top:0,height:H+"cqw",borderLeftWidth:"1px"});ov.appendChild(v);
@@ -474,13 +487,26 @@ function renderOverlay(){
   const crop=ui.crop&&el.type==="image"&&el.a;
   if(crop&&state.assets[el.a]){
     const g=div("ghost");Object.assign(g.style,{left:(el.x+el.cx)+"cqw",top:(el.y+el.cy)+"cqw",width:el.cw+"cqw",height:el.ch+"cqw"});
-    const im=new Image();im.src=state.assets[el.a];g.appendChild(im);ov.appendChild(g);
+    const im=new Image();im.src=procSrc(el);g.appendChild(im);ov.appendChild(g);
   }
   const b=div("sel"+(crop?" crop":""));Object.assign(b.style,{left:el.x+"cqw",top:el.y+"cqw",width:el.w+"cqw",height:el.h+"cqw"});
   const list=(el.type==="image"&&!crop&&el.lock)?["nw","ne","se","sw"]:Object.keys(HANDLES);
-  list.forEach(k=>{const hd=div("hd");hd.dataset.h=k;hd.style.left=HANDLES[k][0]+"%";hd.style.top=HANDLES[k][1]+"%";hd.style.cursor=CURSOR[k];b.appendChild(hd);});
-  if(el.type==="bubble"&&el.shape!=="burst"){const t=div("hd tail");t.dataset.h="tail";t.title="しっぽの先（ドラッグで向きを変える）";t.style.left=el.tx+"cqw";t.style.top=el.ty+"cqw";b.appendChild(t);}
+  if(!ui.warp)list.forEach(k=>{const hd=div("hd");hd.dataset.h=k;hd.style.left=HANDLES[k][0]+"%";hd.style.top=HANDLES[k][1]+"%";hd.style.cursor=CURSOR[k];b.appendChild(hd);});
+  if(!ui.warp&&el.type==="bubble"&&el.shape!=="burst"){const t=div("hd tail");t.dataset.h="tail";t.title="しっぽの先（ドラッグで向きを変える）";t.style.left=el.tx+"cqw";t.style.top=el.ty+"cqw";b.appendChild(t);}
   ov.appendChild(b);
+  if(ui.warp&&el.type==="image"){
+    const pts=ui.warp.q.map(([u,v])=>[el.x+el.cx+u*el.cw,el.y+el.cy+v*el.ch]);
+    ov.appendChild(ovSvg(`<polygon points="${pts.map(q=>fx(q[0])+","+fx(q[1])).join(" ")}" fill="rgba(234,88,12,.12)" stroke="#ea580c" stroke-width=".28" stroke-dasharray=".8 .5"/>`));
+    pts.forEach((q,i)=>{const hd=div("hd warp");hd.dataset.h="warp"+i;hd.style.left=q[0]+"cqw";hd.style.top=q[1]+"cqw";ov.appendChild(hd);});
+  }
+  if(ui.level&&ui.level.p.length){
+    const a=ui.level.p[0],c=ui.level.cur||a;
+    ov.appendChild(ovSvg(`<line x1="${fx(a[0])}" y1="${fx(a[1])}" x2="${fx(c[0])}" y2="${fx(c[1])}" stroke="#e11d8b" stroke-width=".3"/><circle cx="${fx(a[0])}" cy="${fx(a[1])}" r=".6" fill="#e11d8b"/>`));
+  }
+}
+function ovSvg(inner){
+  const sv=document.createElementNS("http://www.w3.org/2000/svg","svg");sv.setAttribute("viewBox",`0 0 100 ${pageH()}`);
+  sv.style.cssText=`position:absolute;left:0;top:0;width:100cqw;height:${pageH()}cqw;overflow:visible;pointer-events:none`;sv.innerHTML=inner;return sv;
 }
 
 /* ---------- 描画まとめ ---------- */
@@ -501,7 +527,7 @@ function renderThumbs(){
       const t=div("th"+(i===state.cur?" on":""));const n=div("n");n.textContent=i+1;
       const pg=div("pg");pg.style.width="146px";pg.style.height=(146*pageH()/100)+"px";pg.appendChild(buildPage(c));
       t.append(n,pg);
-      t.onclick=()=>{if(state.cur===i)return;state.cur=i;ui.sel=null;ui.crop=false;fullRender();save();};
+      t.onclick=()=>{if(state.cur===i)return;if(ui.warp&&selEl())cancelWarp(selEl());ui.level=null;state.cur=i;ui.sel=null;ui.crop=false;fullRender();save();};
       box.appendChild(t);
     });
     const b=div("thb");
@@ -529,7 +555,9 @@ function numField(label,get,set,min,max,step){
   return E("div",{},lab(label),i);
 }
 function selField(label,opts,get,set,styleOpt){
-  const s=E("select");opts.forEach(([v,t,css])=>{const o=E("option",{value:v,textContent:t});if(css)o.style.fontFamily=css;s.appendChild(o);});
+  const s=E("select"),groups={};
+  opts.forEach(([v,t,css,grp])=>{const o=E("option",{value:v,textContent:t});if(css)o.style.fontFamily=css;
+    const par=grp?(groups[grp]||(groups[grp]=s.appendChild(E("optgroup",{label:grp})))):s;par.appendChild(o);});
   s.value=get();if(styleOpt)s.style.fontFamily=fontCss(get());
   s.onchange=()=>{set(s.value);refresh();changed();if(styleOpt)s.style.fontFamily=fontCss(s.value);};
   return E("div",{},lab(label),s);
@@ -551,8 +579,46 @@ function segField(label,items,get,set){
   items.forEach(([v,t])=>d.appendChild(E("button",{textContent:t,className:get()===v?"on":"",onclick:()=>{set(v);refresh();changed();renderProps();}})));
   return E("div",{},lab(label),d);
 }
+function rangeField(label,get,set,min,max,step,fmt){
+  const f=fmt||(v=>v),out=E("span",{textContent:f(get())}),r=E("input",{type:"range",min,max,step,value:get()});
+  r.oninput=()=>{set(+r.value);out.textContent=f(+r.value);refresh();};r.onchange=()=>changed();
+  return E("div",{},E("label",{textContent:label+"　"},out),r);
+}
+function resetFx(el){
+  const had=!!fxOf(el).warp,plain=isPlain(el);el.fx=null;
+  if(had){el.ar=el.ar0;el.ch=el.cw/el.ar;if(plain)el.h=el.ch;}
+  refresh();changed();renderProps();
+}
+function fxPanel(p,el){
+  const f=()=>fxOf(el),set=patch=>setFx(el,patch);
+  p.append(sec("画像の補正（元の画像は残ります）"));
+  if(ui.warp){
+    p.append(E("div",{className:"hint",textContent:"オレンジの四隅の点を、直したい紙（コマ）の四隅にドラッグで合わせて「適用」を押します。"}),
+      E("div",{className:"btns"},btn("適用",()=>applyWarp(el),"on"),btn("キャンセル",()=>cancelWarp(el)),
+        btn("四隅を元に戻す",()=>{ui.warp.q=[[0,0],[1,0],[1,1],[0,1]];renderOverlay();},"wide")));
+    return;
+  }
+  const seg=E("div",{className:"seg"});
+  [["弱",[25,12,15]],["中",[45,30,35]],["強",[70,50,55]]].forEach(([t,v])=>seg.appendChild(btn(t,()=>presetFx(el,v))));
+  p.append(lab("かんたん補正（マンガ向け・3段階）"),seg,
+    E("div",{className:"btns"},btn("自動で背景を白く",async()=>{await autoFx(el);refresh();changed();renderProps();},"wide")));
+  p.append(rangeField("背景を白く（灰色っぽさを消す）",()=>f().white,v=>set({white:v}),0,100,1),
+    rangeField("黒をくっきり",()=>f().black,v=>set({black:v}),0,100,1),
+    rangeField("コントラスト",()=>f().contrast,v=>set({contrast:v}),0,100,1),
+    rangeField("シャープ（輪郭をはっきり）",()=>f().sharp,v=>set({sharp:v}),0,100,1),
+    rangeField("2階調化（白か黒だけにする）",()=>f().thr,v=>set({thr:v}),0,240,1,v=>v?v:"オフ"),
+    chkField("白黒（グレースケール）にする",()=>f().gray,v=>set({gray:v})));
+  p.append(sec("傾き・ゆがみ"),
+    rangeField("傾き",()=>f().rot,v=>set({rot:v}),-15,15,.1,v=>(+v).toFixed(1)+"°"),
+    E("div",{className:"btns"},
+      btn(ui.level?"2点クリック待ち…":"2点で水平に合わせる",()=>{ui.level=ui.level?null:{p:[]};renderProps();renderOverlay();},ui.level?"on":""),
+      btn("ゆがみを直す（四隅）",()=>enterWarp(el)),
+      f().warp?btn("ゆがみ補正を解除",()=>clearWarp(el)):null,
+      btn("補正をぜんぶ戻す",()=>resetFx(el),"danger")));
+  if(ui.level)p.append(E("div",{className:"hint",textContent:"水平にしたい線（コマの枠の上辺など）の左端→右端の順に2か所クリック。Escで中止。"}));
+}
 function btn(text,f,cls){return E("button",{textContent:text,onclick:f,className:cls||""});}
-const fontOpts=()=>FONTS.map(([v,t,css])=>[v,t,css]);
+const fontOpts=()=>FONTS.map(([v,t,css])=>[v,t,css,MANGA_FONTS.has(v)?"マンガ・ポップ":"基本"]);
 const STYLES=[["solid","実線"],["dashed","破線"],["dotted","点線"],["double","二重線"]];
 function fillFields(el,pal){
   const box=E("div");
@@ -648,6 +714,7 @@ function renderProps(){
     p.append(chkField("縦横比を固定する",()=>el.lock,v=>el.lock=v));
     p.append(E("div",{className:"hint",textContent:el.lock?"外すと辺のハンドルが出て、縦や横だけ伸ばせます。":"辺のハンドルで縦・横だけ伸び縮みします。戻すときは「元の比率に戻す」。"}));
     if(ui.crop)p.append(E("div",{className:"hint",textContent:"トリミング中：画像をドラッグで位置調整、ホイールで拡大縮小、枠のハンドルで切り取る範囲を変更。Escで終了。"}));
+    if(el.a)fxPanel(p,el);
     p.append(sec("枠線・装飾"),borderFields(el),
       numField("角の丸み (mm)",()=>el.radius*mm,v=>el.radius=Math.max(0,v/mm),0,50,.5),
       chkField("影を付ける",()=>el.shadow,v=>el.shadow=v));
@@ -675,6 +742,156 @@ function renderProps(){
     btn("上下の中央へ",()=>{el.y=(pageH()-el.h)/2;touch(el);changed();}),
     btn("複製",()=>duplicate()),
     btn("削除",()=>removeSel(),"danger")));
+}
+
+/* ---------- 画像の補正（傾き・ゆがみ・背景を白く・黒をくっきり）。元画像は残し、表示と印刷のときだけ加工する ---------- */
+const FX_PREV=900,FX_FULL=2400;
+const FX0=()=>({gray:false,white:0,black:0,contrast:0,sharp:0,thr:0,rot:0,warp:null});
+const fxOf=el=>Object.assign(FX0(),el.fx||{});
+const fxActive=fx=>!!(fx.gray||fx.white||fx.black||fx.contrast||fx.sharp||fx.thr||fx.rot||fx.warp);
+const setFx=(el,patch)=>{el.fx=Object.assign(fxOf(el),patch);};
+const imgP=new Map();
+function getImg(a){
+  if(!imgP.has(a))imgP.set(a,new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=state.assets[a];}));
+  return imgP.get(a);
+}
+const quadSize=P=>{const L=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1]);return [(L(P[0],P[1])+L(P[3],P[2]))/2,(L(P[0],P[3])+L(P[1],P[2]))/2];};
+function homography(P){                     // 単位正方形 (0,0)(1,0)(1,1)(0,1) → 四角形 P（左上・右上・右下・左下）
+  const [x0,y0]=P[0],[x1,y1]=P[1],[x2,y2]=P[2],[x3,y3]=P[3];
+  const dx1=x1-x2,dx2=x3-x2,dx3=x0-x1+x2-x3,dy1=y1-y2,dy2=y3-y2,dy3=y0-y1+y2-y3;
+  let a,b,d,e,g=0,h=0;
+  if(Math.abs(dx3)<1e-9&&Math.abs(dy3)<1e-9){a=x1-x0;b=x3-x0;d=y1-y0;e=y3-y0;}
+  else{const den=dx1*dy2-dy1*dx2;g=(dx3*dy2-dy3*dx2)/den;h=(dx1*dy3-dy1*dx3)/den;a=x1-x0+g*x1;b=x3-x0+h*x3;d=y1-y0+g*y1;e=y3-y0+h*y3;}
+  return {a,b,c:x0,d,e,f:y0,g,h};
+}
+function warpCanvas(im,quad,maxDim){
+  const W0=im.naturalWidth,H0=im.naturalHeight,P=quad.map(([u,v])=>[u*W0,v*H0]);
+  let [ow,oh]=quadSize(P);const k=Math.min(1,maxDim/Math.max(ow,oh));ow=Math.max(2,Math.round(ow*k));oh=Math.max(2,Math.round(oh*k));
+  const sc=document.createElement("canvas");sc.width=W0;sc.height=H0;
+  const sg=sc.getContext("2d",{willReadFrequently:true});sg.drawImage(im,0,0);const S=sg.getImageData(0,0,W0,H0).data;
+  const cv=document.createElement("canvas");cv.width=ow;cv.height=oh;
+  const og=cv.getContext("2d"),od=og.createImageData(ow,oh),O=od.data,H=homography(P);
+  const cl=(v,m)=>v<0?0:v>m?m:v;
+  for(let j=0;j<oh;j++){
+    const v=(j+.5)/oh;
+    for(let i=0;i<ow;i++){
+      const u=(i+.5)/ow,q=H.g*u+H.h*v+1,sx=(H.a*u+H.b*v+H.c)/q-.5,sy=(H.d*u+H.e*v+H.f)/q-.5,o=(j*ow+i)*4;
+      if(sx<-.5||sy<-.5||sx>W0-.5||sy>H0-.5){O[o]=O[o+1]=O[o+2]=O[o+3]=255;continue;}
+      const xf=Math.floor(sx),yf=Math.floor(sy),tx=sx-xf,ty=sy-yf;
+      const xa=cl(xf,W0-1),xb=cl(xf+1,W0-1),ya=cl(yf,H0-1),yb=cl(yf+1,H0-1);
+      const p00=(ya*W0+xa)*4,p10=(ya*W0+xb)*4,p01=(yb*W0+xa)*4,p11=(yb*W0+xb)*4;
+      for(let c=0;c<3;c++)O[o+c]=(1-ty)*((1-tx)*S[p00+c]+tx*S[p10+c])+ty*((1-tx)*S[p01+c]+tx*S[p11+c]);
+      O[o+3]=255;
+    }
+  }
+  og.putImageData(od,0,0);return cv;
+}
+function tonal(cv,fx){
+  const tone=fx.gray||fx.white||fx.black||fx.contrast||fx.thr,sharp=fx.sharp>0;
+  if(!tone&&!sharp)return;
+  const g=cv.getContext("2d",{willReadFrequently:true}),W=cv.width,H=cv.height,img=g.getImageData(0,0,W,H),d=img.data;
+  if(tone){
+    const wp=255-1.35*fx.white,bp=1.2*fx.black,span=Math.max(8,wp-bp),k=fx.contrast/100,lut=new Uint8Array(256);
+    for(let v=0;v<256;v++){let x=(v-bp)/span;x=x<0?0:x>1?1:x;if(k)x+=k*(x*x*(3-2*x)-x);let o=Math.round(x*255);if(fx.thr>0)o=o>=fx.thr?255:0;lut[v]=o;}
+    const gray=fx.gray||fx.thr>0;
+    for(let i=0;i<d.length;i+=4){
+      if(gray){const L=Math.round(.299*d[i]+.587*d[i+1]+.114*d[i+2]);d[i]=d[i+1]=d[i+2]=lut[L];}
+      else{d[i]=lut[d[i]];d[i+1]=lut[d[i+1]];d[i+2]=lut[d[i+2]];}
+    }
+  }
+  if(sharp){
+    const s=new Uint8ClampedArray(d),amt=fx.sharp/100*1.6,r=W*4;
+    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const o=(y*W+x)*4;
+      for(let c=0;c<3;c++){const p=o+c,avg=(s[p-4-r]+s[p-r]+s[p+4-r]+s[p-4]+s[p]+s[p+4]+s[p-4+r]+s[p+r]+s[p+4+r])/9;d[p]=s[p]+amt*(s[p]-avg);}}
+  }
+  g.putImageData(img,0,0);
+}
+async function renderFx(a,fx,maxDim){
+  const im=await getImg(a);let cv;
+  if(fx.warp)cv=warpCanvas(im,fx.warp,maxDim);
+  else{const k=Math.min(1,maxDim/Math.max(im.naturalWidth,im.naturalHeight));
+    cv=document.createElement("canvas");cv.width=Math.max(2,Math.round(im.naturalWidth*k));cv.height=Math.max(2,Math.round(im.naturalHeight*k));
+    cv.getContext("2d",{willReadFrequently:true}).drawImage(im,0,0,cv.width,cv.height);}
+  if(fx.rot){
+    const r=document.createElement("canvas");r.width=cv.width;r.height=cv.height;const g=r.getContext("2d",{willReadFrequently:true});
+    g.fillStyle="#fff";g.fillRect(0,0,r.width,r.height);g.translate(r.width/2,r.height/2);g.rotate(fx.rot*Math.PI/180);g.drawImage(cv,-cv.width/2,-cv.height/2);cv=r;
+  }
+  tonal(cv,fx);return cv;
+}
+const toUrl=cv=>new Promise(res=>cv.toBlob(b=>res(URL.createObjectURL(b)),"image/png"));
+const fxCache=new Map(),fxShown=new Map(),fxTimers={};
+const fxKey=(el,dim)=>el.a+"|"+JSON.stringify(fxOf(el))+"|"+dim;
+function trimFx(){
+  if(fxCache.size<=24)return;const live=new Set(fxShown.values());
+  for(const [k,u] of fxCache){if(fxCache.size<=24)break;if(live.has(u))continue;URL.revokeObjectURL(u);fxCache.delete(k);}
+}
+let fxDoneT;
+function fxDone(){clearTimeout(fxDoneT);fxDoneT=setTimeout(()=>{const ae=document.activeElement;if(ae&&ae.isContentEditable)return fxDone();refresh();renderThumbs();},40);}
+function requestFx(el,dim,delay){
+  const key=fxKey(el,dim);if(fxCache.has(key))return;
+  const id=el.id+":"+dim;clearTimeout(fxTimers[id]);const fx=clone(fxOf(el)),a=el.a;
+  fxTimers[id]=setTimeout(async()=>{
+    if(fxCache.has(key))return;
+    try{const url=await toUrl(await renderFx(a,fx,dim));fxCache.set(key,url);trimFx();fxDone();}catch(e){}
+  },delay);
+}
+function procSrc(el){                      // 表示に使う画像URL。加工が間に合うまでは直前の見え方（なければ元画像）を出す
+  const base=state.assets[el.a];if(!el.a||!base)return "";
+  if(ui.warp&&ui.sel===el.id)return base;
+  const fx=fxOf(el);if(!fxActive(fx))return base;
+  const kf=fxKey(el,FX_FULL),kp=fxKey(el,FX_PREV);
+  if(fxCache.has(kf)){const u=fxCache.get(kf);fxShown.set(el.id,u);return u;}
+  requestFx(el,FX_PREV,0);requestFx(el,FX_FULL,350);
+  if(fxCache.has(kp)){const u=fxCache.get(kp);fxShown.set(el.id,u);return u;}
+  return fxShown.get(el.id)||base;
+}
+async function ensureFxFull(covers){       // 印刷前：すべての補正済み画像を最大サイズで用意する
+  for(const c of covers)for(const el of c.els){
+    if(el.type!=="image"||!el.a||!state.assets[el.a])continue;
+    const fx=fxOf(el);if(!fxActive(fx))continue;const key=fxKey(el,FX_FULL);if(fxCache.has(key))continue;
+    fxCache.set(key,await toUrl(await renderFx(el.a,clone(fx),FX_FULL)));
+  }
+}
+async function autoFx(el){                 // 画像の明るさの分布から、背景を白く・黒をくっきりの度合いを決める
+  const f0=fxOf(el),cv=await renderFx(el.a,Object.assign(FX0(),{warp:f0.warp,rot:f0.rot}),500);
+  const d=cv.getContext("2d",{willReadFrequently:true}).getImageData(0,0,cv.width,cv.height).data,hist=new Array(258).fill(0);
+  let n=0,sat=0;
+  for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],b=d[i+2];hist[Math.round(.299*r+.587*g+.114*b)+1]++;n++;sat+=Math.max(r,g,b)-Math.min(r,g,b);}
+  let peak=255,pm=-1;for(let v=100;v<256;v++){const s=hist[v]+hist[v+1]*2+hist[v+2];if(s>pm){pm=s;peak=v;}}
+  let acc=0,lo=0;for(let v=0;v<256;v++){acc+=hist[v+1];if(acc>=n*.01){lo=v;break;}}
+  const wp=Math.max(110,peak-3),bp=Math.min(lo+10,60);   // 黒の上限を抑え、スクリーントーンなど中間の灰色をつぶしすぎない
+  setFx(el,{white:Math.round(Math.min(100,(255-wp)/1.35)),black:Math.round(Math.min(100,bp/1.2)),contrast:Math.max(f0.contrast,30),gray:f0.gray||sat/n<14});
+}
+function presetFx(el,[w,b,c]){setFx(el,{white:w,black:b,contrast:c,gray:true});refresh();changed();renderProps();}
+
+/* ゆがみ補正（四隅指定）と 傾き補正（2点指定） */
+const isPlain=el=>Math.abs(el.cx)<.01&&Math.abs(el.cy)<.01&&Math.abs(el.w-el.cw)<.05&&Math.abs(el.h-el.ch)<.05;
+function enterWarp(el){
+  const fx=fxOf(el);
+  ui.warp={orig:{ar:el.ar,ch:el.ch,h:el.h},q:fx.warp?clone(fx.warp):[[0,0],[1,0],[1,1],[0,1]],plain:isPlain(el)};
+  ui.crop=false;ui.level=null;el.ar=el.ar0;el.ch=el.cw/el.ar0;if(ui.warp.plain)el.h=el.ch;
+  fullRender();
+}
+function applyWarp(el){
+  const w=ui.warp,q=w.q,ident=q.every(([u,v],i)=>Math.abs(u-[0,1,1,0][i])<.002&&Math.abs(v-[0,0,1,1][i])<.002);
+  const fx=fxOf(el);fx.warp=ident?null:q;el.fx=fx;
+  let ar=el.ar0;if(!ident){const [ow,oh]=quadSize(q.map(([u,v])=>[u*el.ar0,v]));ar=ow/oh;}
+  el.ar=ar;el.ch=el.cw/ar;if(w.plain)el.h=el.ch;
+  ui.warp=null;fullRender();changed();
+}
+function cancelWarp(el){Object.assign(el,ui.warp.orig);ui.warp=null;fullRender();}
+function clearWarp(el){
+  const plain=isPlain(el),f=fxOf(el);f.warp=null;el.fx=f;
+  el.ar=el.ar0;el.ch=el.cw/el.ar;if(plain)el.h=el.ch;refresh();changed();renderProps();
+}
+function levelClick(e){                    // 2点クリックで、その2点を結ぶ線が水平になるように傾きを直す
+  const el=selEl(),r=cvEl.getBoundingClientRect(),s=scale();
+  ui.level.p.push([(e.clientX-r.left)/s,(e.clientY-r.top)/s]);
+  if(ui.level.p.length===2&&el){
+    let [a,b]=ui.level.p;if(b[0]<a[0])[a,b]=[b,a];
+    if(b[0]-a[0]>1){const th=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI,rot=Math.round((fxOf(el).rot-th)*10)/10;setFx(el,{rot:Math.max(-45,Math.min(45,rot))});}
+    ui.level=null;refresh();changed();renderProps();
+  }else renderOverlay();
 }
 
 /* ---------- 画像 ---------- */
@@ -705,8 +922,8 @@ function restoreRatio(el){
 async function setImage(file,targetId){
   const r=await loadImage(file);if(!r)return;
   let el=targetId&&byId(targetId);
-  if(el&&el.type==="image"){el.a=r.a;el.ar=r.ar;fitInto(el,el.x,el.y,el.w,el.h);}
-  else{el=mkImage({a:r.a,ar:r.ar});fitInto(el,8,25.5,50,Math.min(38,pageH()-30));cur().els.push(el);}
+  if(el&&el.type==="image"){el.a=r.a;el.ar=r.ar;el.ar0=r.ar;el.fx=null;fitInto(el,el.x,el.y,el.w,el.h);}
+  else{el=mkImage({a:r.a,ar:r.ar,ar0:r.ar});fitInto(el,8,25.5,50,Math.min(38,pageH()-30));cur().els.push(el);}
   ui.sel=el.id;ui.crop=false;changed();fullRender();
 }
 let pickTarget=null;
@@ -772,7 +989,7 @@ function applyTemplate(t,carry){
     if(oi&&ni){
       // 切り抜き・変形をそのまま保って新しい枠に収め、画像の上の吹き出し・セリフも同じ比率で移す
       const k=Math.min(ni.w/oi.w,ni.h/oi.h),nx=ni.x+(ni.w-oi.w*k)/2,ny=ni.y+(ni.h-oi.h*k)/2;
-      Object.assign(ni,{a:oi.a,ar:oi.ar,x:nx,y:ny,w:oi.w*k,h:oi.h*k,cx:oi.cx*k,cy:oi.cy*k,cw:oi.cw*k,ch:oi.ch*k,lock:oi.lock});
+      Object.assign(ni,{a:oi.a,ar:oi.ar,x:nx,y:ny,w:oi.w*k,h:oi.h*k,cx:oi.cx*k,cy:oi.cy*k,cw:oi.cw*k,ch:oi.ch*k,lock:oi.lock,ar0:oi.ar0,fx:clone(oi.fx)});
       old.els.forEach(e=>{
         if(e===oi||e.role||!(e.type==="bubble"||e.type==="text"||e.type==="image"))return;
         const mx=e.x+e.w/2,my=e.y+e.h/2;if(mx<oi.x||mx>oi.x+oi.w||my<oi.y||my>oi.y+oi.h)return;
@@ -847,18 +1064,22 @@ function doResize(el,o,hd,dx,dy,crop){
 const cvEl=$("cv");
 cvEl.addEventListener("pointerdown",e=>{
   if(e.button!==0||e.target.isContentEditable)return;
+  if(ui.level){levelClick(e);e.preventDefault();return;}
   const hd=e.target.dataset&&e.target.dataset.h;
+  if(ui.warp&&!(hd&&hd.startsWith("warp")))return;
   const node=e.target.closest&&e.target.closest("[data-id]");
   const id=hd?ui.sel:(node&&node.dataset.id);
   const ae=document.activeElement;if(ae&&ae.isContentEditable)ae.blur();
   if(!id){if(ui.sel){ui.sel=null;ui.crop=false;renderOverlay();renderProps();}return;}
   const el=byId(id);if(!el)return;
   if(ui.sel!==id){ui.sel=id;ui.crop=false;renderProps();}
-  const kind=hd==="tail"?"tail":hd?"resize":(ui.crop&&el.type==="image"&&el.a?"pan":"move");
-  drag={kind,hd,id,sx:e.clientX,sy:e.clientY,o:clone(el),moved:false,s:scale()};
+  const warp=!!(hd&&hd.startsWith("warp"));
+  const kind=warp?"warp":hd==="tail"?"tail":hd?"resize":(ui.crop&&el.type==="image"&&el.a?"pan":"move");
+  drag={kind,hd,id,sx:e.clientX,sy:e.clientY,o:clone(el),moved:false,s:scale(),idx:warp?+hd.slice(4):-1,q0:warp?clone(ui.warp.q):null};
   cvEl.setPointerCapture(e.pointerId);e.preventDefault();renderOverlay();
 });
 cvEl.addEventListener("pointermove",e=>{
+  if(ui.level&&ui.level.p.length===1){const r=cvEl.getBoundingClientRect(),s=scale();ui.level.cur=[(e.clientX-r.left)/s,(e.clientY-r.top)/s];renderOverlay();return;}
   if(!drag)return;
   const dx=(e.clientX-drag.sx)/drag.s,dy=(e.clientY-drag.sy)/drag.s;
   if(!drag.moved&&Math.hypot(dx,dy)*drag.s<3)return;
@@ -866,6 +1087,7 @@ cvEl.addEventListener("pointermove",e=>{
   if(drag.kind==="move"){const [nx,ny]=snapMove(el,o.x+dx,o.y+dy,e.altKey);el.x=nx;el.y=ny;}
   else if(drag.kind==="pan"){el.cx=o.cx+dx;el.cy=o.cy+dy;}
   else if(drag.kind==="tail"){el.tx=o.tx+dx;el.ty=o.ty+dy;}
+  else if(drag.kind==="warp"){const cl=v=>Math.max(0,Math.min(1,v));ui.warp.q[drag.idx]=[cl(drag.q0[drag.idx][0]+dx/o.cw),cl(drag.q0[drag.idx][1]+dy/o.ch)];}
   else doResize(el,o,drag.hd,dx,dy,ui.crop);
   touch(el);
 });
@@ -923,6 +1145,10 @@ document.addEventListener("paste",e=>{
 document.addEventListener("keydown",e=>{
   if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.target.isContentEditable)return;
   if(!$("modal").hidden){if(e.key==="Escape")$("modal").hidden=true;return;}
+  if(ui.warp||ui.level){
+    if(e.key==="Escape"){if(ui.warp)cancelWarp(selEl());else{ui.level=null;renderOverlay();renderProps();}}
+    return;
+  }
   const el=selEl(),mod=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(mod&&k==="z"){e.preventDefault();e.shiftKey?redo():undo();return;}
   if(mod&&k==="y"){e.preventDefault();redo();return;}
@@ -942,7 +1168,9 @@ document.addEventListener("keydown",e=>{
 
 /* ---------- 印刷 ---------- */
 async function doPrint(list){
+  if(ui.warp||ui.level){alert("画像補正の指定中です。「適用」か「キャンセル」を押してから印刷してください。");return;}
   applyPaper();
+  await ensureFxFull(list);
   $("print").replaceChildren(...list.map(buildPage));
   try{await document.fonts.ready;}catch(e){}
   setTimeout(()=>window.print(),150);

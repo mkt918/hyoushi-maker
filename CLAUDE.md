@@ -11,6 +11,8 @@ GitHub: mkt918/hyoushi-maker（public、Pages で配信）。
 - ポインターキャプチャ中は `e.target` が `#cv` になる。ダブルクリック等は `document.elementFromPoint` で対象を引く
 - `var state` は初期化中の `pageH()` が参照するため意図的に var
 - 印刷は基本グレースケール。新しいテンプレートはグレーだけで組み、白黒でも文字と背景の明暗差が十分あることを確かめる
+- 画像補正は非破壊。要素には元画像 `a`・元の縦横比 `ar0`・補正パラメータ `fx` を持たせ、加工結果は `fxCache`（メモリのみ・保存しない）。表示は `procSrc(el)` 経由、印刷前は `ensureFxFull()` で最大サイズを作る。ゆがみ補正で `ar` が変わるので、補正後の縦横比は `ar`、元は `ar0`
+- テンプレート内の文字は `T()`（背景透明）で作る。`mkText()` の既定は白塗りなので、テンプレートで `mkText` を直接使わない
 - テンプレートの文字要素には `role`（title / notes / sub / sub2）を付ける。切り替え時の引き継ぎはこれで対応づける
 - 印刷は `#print` に全ページを組み直して `window.print()`。`@page` サイズは `applyPaper()` が注入する
 
